@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open PO Jersey Ma'had | Sistem Pemesanan Resmi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#090d16',
+                        cardBg: '#111827',
+                        cardBorder: '#1f293d',
+                        brandBlue: '#3b82f6',
+                        brandDarkBlue: '#1d4ed8',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1f293d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #374151; }
+    </style>
+</head>
+<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
+
+    <header class="sticky top-0 z-50 bg-darkBg/90 backdrop-blur-md border-b border-cardBorder">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-shirt text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">PO Jersey Ma'had</h1>
+                    <p class="text-xs text-slate-400">Sistem Pemesanan Resmi & Google Sheets DB</p>
+                </div>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <nav class="hidden md:flex items-center space-x-2 bg-cardBg p-1 rounded-xl border border-cardBorder text-sm font-medium">
+                <button onclick="switchTab('form')" id="nav-form" class="px-4 py-2 rounded-lg transition-all duration-200 bg-blue-600 text-white shadow-md">
+                    <i class="fa-solid fa-pen-to-square mr-2"></i>Form Pemesanan
+                </button>
+                <button onclick="requestAdminAccess('admin')" id="nav-admin" class="px-4 py-2 rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-shield-halved mr-2"></i>Panel Admin
+                </button>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden flex items-center space-x-2">
+                <button onclick="toggleMobileMenu()" class="p-2 rounded-xl bg-cardBg border border-cardBorder text-slate-300">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-2 bg-cardBg border-b border-cardBorder">
+            <button onclick="switchTab('form'); toggleMobileMenu();" class="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white">Form Pemesanan</button>
+            <button onclick="requestAdminAccess('admin'); toggleMobileMenu();" class="w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800">Panel Admin</button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <div id="tab-form" class="space-y-8 animate-fadeIn">
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-900/40 via-indigo-950/40 to-slate-900/60 border border-cardBorder p-6 sm:p-8">
+                <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-4">
+                        <i class="fa-solid fa-fire mr-1.5"></i> Terhubung ke Google Sheets Database
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">Formulir Pre-Order Jersey Resmi Ma'had</h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Silakan lengkapi data diri, pilih spesifikasi jersey sesuai matriks harga resmi di bawah, dan amankan nomor punggung pilihan Anda.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PRICING MATRIX DISPLAY CARD -->
+            <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl">
+                <h3 class="text-base font-semibold text-white flex items-center mb-4 pb-3 border-b border-cardBorder">
+                    <i class="fa-solid fa-tags text-blue-400 mr-2.5"></i> Matriks Harga Resmi Jersey Ma'had
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Set Lengkap</span>
+                            <h4 class="text-sm font-bold text-white mt-2">Lengan Pendek</h4>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex items-baseline justify-between">
+                            <span class="text-xs text-slate-400">Harga:</span>
+                            <span class="text-lg font-extrabold text-blue-400">Rp 150.000</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Set Lengkap</span>
+                            <h4 class="text-sm font-bold text-white mt-2">Lengan Panjang</h4>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex items-baseline justify-between">
+                            <span class="text-xs text-slate-400">Harga:</span>
+                            <span class="text-lg font-extrabold text-blue-400">Rp 160.000</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Tanpa Celana</span>
+                            <h4 class="text-sm font-bold text-white mt-2">Lengan Pendek</h4>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex items-baseline justify-between">
+                            <span class="text-xs text-slate-400">Harga:</span>
+                            <span class="text-lg font-extrabold text-blue-400">Rp 100.000</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">Tanpa Celana</span>
+                            <h4 class="text-sm font-bold text-white mt-2">Lengan Panjang</h4>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 flex items-baseline justify-between">
+                            <span class="text-xs text-slate-400">Harga:</span>
+                            <span class="text-lg font-extrabold text-blue-400">Rp 110.000</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-400 mt-3"><i class="fa-solid fa-circle-info mr-1 text-blue-400"></i> Tambahan ukuran 3XL, 4XL, & 5XL dikenakan biaya tambahan sebesar Rp 10.000 per item.</p>
+            </div>
+
+            <form id="order-form" onsubmit="handleFormSubmit(event)" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 space-y-6">
+                    
+                    <!-- Card 1: Data Identitas -->
+                    <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-base font-semibold text-white flex items-center mb-5 pb-3 border-b border-cardBorder">
+                            <span class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center mr-3 text-sm font-bold">1</span>
+                            Informasi Pemesan
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1.5">Nama Lengkap & Gelar <span class="text-red-400">*</span></label>
+                                <input type="text" id="nama" required placeholder="Contoh: Ahmad Fauzan" 
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1.5">Angkatan / Status <span class="text-red-400">*</span></label>
+                                <select id="angkatan" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                                    <option value="" disabled selected>-- Pilih Angkatan / Status --</option>
+                                    <option value="Angkatan 22">Angkatan 22</option>
+                                    <option value="Angkatan 23">Angkatan 23</option>
+                                    <option value="Angkatan 24">Angkatan 24</option>
+                                    <option value="Angkatan 25">Angkatan 25</option>
+                                    <option value="Angkatan 26">Angkatan 26</option>
+                                    <option value="Alumni">Alumni</option>
+                                    <option value="Asatidz">Asatidz</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Spesifikasi Jersey -->
+                    <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-base font-semibold text-white flex items-center mb-5 pb-3 border-b border-cardBorder">
+                            <span class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center mr-3 text-sm font-bold">2</span>
+                            Spesifikasi & Model Jersey
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Jenis Lengan <span class="text-red-400">*</span></label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="lengan" value="Pendek" checked onchange="calculatePrice()" class="peer sr-only">
+                                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-700 peer-checked:border-blue-500 peer-checked:bg-blue-600/10 text-center transition-all">
+                                            <i class="fa-solid fa-child-reaching mb-1 text-blue-400 block"></i>
+                                            <span class="text-xs font-semibold text-slate-200">Pendek</span>
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="lengan" value="Panjang" onchange="calculatePrice()" class="peer sr-only">
+                                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-700 peer-checked:border-blue-500 peer-checked:bg-blue-600/10 text-center transition-all">
+                                            <i class="fa-solid fa-user-tie mb-1 text-blue-400 block"></i>
+                                            <span class="text-xs font-semibold text-slate-200">Panjang</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-2">Pilihan Celana <span class="text-red-400">*</span></label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="celana" value="Set Lengkap" checked onchange="calculatePrice()" class="peer sr-only">
+                                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-700 peer-checked:border-blue-500 peer-checked:bg-blue-600/10 text-center transition-all">
+                                            <i class="fa-solid fa-layer-group mb-1 text-blue-400 block"></i>
+                                            <span class="text-xs font-semibold text-slate-200">Set Lengkap</span>
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="celana" value="Tanpa Celana" onchange="calculatePrice()" class="peer sr-only">
+                                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-700 peer-checked:border-blue-500 peer-checked:bg-blue-600/10 text-center transition-all">
+                                            <i class="fa-solid fa-shirt mb-1 text-blue-400 block"></i>
+                                            <span class="text-xs font-semibold text-slate-200">Tanpa Celana</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Ukuran Baju <span class="text-red-400">*</span></label>
+                            <select id="ukuran" onchange="calculatePrice()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors">
+                                <option value="S">S (Standar)</option>
+                                <option value="M">M (Standar)</option>
+                                <option value="L" selected>L (Standar)</option>
+                                <option value="XL">XL (Standar)</option>
+                                <option value="XXL">XXL (Standar)</option>
+                                <option value="3XL">3XL (+Rp 10.000)</option>
+                                <option value="4XL">4XL (+Rp 10.000)</option>
+                                <option value="5XL">5XL (+Rp 10.000)</option>
+                            </select>
+                            <p class="text-xs text-slate-400 mt-1.5"><i class="fa-solid fa-circle-info mr-1 text-blue-400"></i> Ukuran 3XL ke atas dikenakan tambahan biaya Rp 10.000 per item.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Kustomisasi Nama & Nomor Punggung -->
+                    <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-base font-semibold text-white flex items-center mb-5 pb-3 border-b border-cardBorder">
+                            <span class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center mr-3 text-sm font-bold">3</span>
+                            Kustomisasi Punggung
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-300 mb-1.5">Nama Punggung (Opsional)</label>
+                                <input type="text" id="nama_punggung" placeholder="Maks. 12 Karakter (Contoh: FAUZAN)" maxlength="15"
+                                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 uppercase focus:outline-none focus:border-blue-500 transition-colors">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label class="text-sm font-medium text-slate-300">Nomor Punggung (1 - 200)</label>
+                                    <div class="flex items-center space-x-4 text-xs">
+                                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-600 inline-block mr-1.5"></span> Tersedia</span>
+                                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-slate-700 inline-block mr-1.5"></span> Terpakai</span>
+                                        <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block mr-1.5"></span> Pilihan Anda</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between bg-slate-900 p-3 rounded-xl border border-slate-700 mb-3">
+                                    <span class="text-sm text-slate-300">Nomor Terpilih: <strong id="selected-number-display" class="text-blue-400 text-base">Belum dipilih</strong></span>
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="checkbox" id="tanpa_nomor" onchange="toggleTanpaNomor(this)" class="w-4 h-4 rounded text-blue-600 bg-slate-800 border-slate-600 focus:ring-blue-500">
+                                        <span class="text-xs text-slate-300">Tanpa Nomor Punggung</span>
+                                    </label>
+                                </div>
+
+                                <div id="number-grid-container" class="bg-slate-900/80 border border-slate-800 rounded-xl p-3 max-h-56 overflow-y-auto">
+                                    <div id="number-grid" class="grid grid-cols-10 sm:grid-cols-12 md:grid-cols-15 gap-1.5">
+                                        <!-- Rendered via JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Bukti Pembayaran -->
+                    <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-base font-semibold text-white flex items-center mb-5 pb-3 border-b border-cardBorder">
+                            <span class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center mr-3 text-sm font-bold">4</span>
+                            Unggah Bukti Transfer
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-2xl p-6 text-center cursor-pointer transition-colors bg-slate-900/50" onclick="document.getElementById('bukti_transfer').click()">
+                                <input type="file" id="bukti_transfer" accept="image/*" required class="hidden" onchange="handleFileSelect(event)">
+                                <div id="upload-placeholder">
+                                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500 mb-2"></i>
+                                    <p class="text-sm font-medium text-slate-200">Klik untuk upload bukti transfer (JPG / PNG)</p>
+                                    <p class="text-xs text-slate-400 mt-1">Maksimal ukuran file 5MB</p>
+                                </div>
+                                <div id="upload-preview" class="hidden flex flex-col items-center">
+                                    <img id="preview-img" src="" alt="Bukti Transfer" class="max-h-36 rounded-lg mb-2 border border-slate-700 object-contain">
+                                    <p id="file-name" class="text-xs text-blue-400 font-medium"></p>
+                                    <span class="text-xs text-slate-400 mt-1">Klik untuk mengganti gambar</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="lg:col-span-1">
+                    <div class="sticky top-24 space-y-6">
+                        
+                        <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl">
+                            <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4 flex items-center">
+                                <i class="fa-solid fa-wallet text-blue-400 mr-2"></i> Rekening Pembayaran Resmi
+                            </h3>
+                            <div class="space-y-3.5 text-xs">
+                                <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold text-blue-400">SeaBank</span>
+                                        <button type="button" onclick="copyToClipboard('901513205804', this)" class="text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800 transition-colors">
+                                            <i class="fa-regular fa-copy mr-1"></i> Salin
+                                        </button>
+                                    </div>
+                                    <p class="font-mono text-sm text-slate-200">901513205804</p>
+                                    <p class="text-[11px] text-slate-400">a.n. Muhammad Istajib Munajat</p>
+                                </div>
+
+                                <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold text-blue-400">BCA</span>
+                                        <button type="button" onclick="copyToClipboard('4373208046', this)" class="text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800 transition-colors">
+                                            <i class="fa-regular fa-copy mr-1"></i> Salin
+                                        </button>
+                                    </div>
+                                    <p class="font-mono text-sm text-slate-200">4373208046</p>
+                                    <p class="text-[11px] text-slate-400">a.n. Muhammad Istajib Munajat</p>
+                                </div>
+
+                                <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="font-bold text-blue-400">DANA</span>
+                                        <button type="button" onclick="copyToClipboard('085793343220', this)" class="text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800 transition-colors">
+                                            <i class="fa-regular fa-copy mr-1"></i> Salin
+                                        </button>
+                                    </div>
+                                    <p class="font-mono text-sm text-slate-200">085793343220</p>
+                                    <p class="text-[11px] text-slate-400">a.n. M. Nurfahmi Lubis</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-cardBg to-slate-900 border border-cardBorder rounded-2xl p-6 shadow-xl">
+                            <h3 class="text-base font-semibold text-white mb-4 pb-3 border-b border-cardBorder">
+                                <i class="fa-solid fa-receipt text-blue-400 mr-2"></i> Ringkasan Biaya
+                            </h3>
+
+                            <div class="space-y-3 text-sm mb-6">
+                                <div class="flex justify-between text-slate-300">
+                                    <span id="summary-package">Set Lengkap (Lengan Pendek)</span>
+                                    <span id="summary-base-price" class="font-medium">Rp 150.000</span>
+                                </div>
+                                <div class="flex justify-between text-slate-300">
+                                    <span>Biaya Ukuran (> XXL)</span>
+                                    <span id="summary-surcharge" class="font-medium">Rp 0</span>
+                                </div>
+                                <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
+                                    <span class="font-bold text-white">Total Bayar</span>
+                                    <span id="summary-total" class="text-xl font-extrabold text-blue-400">Rp 150.000</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="submit-btn" class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Kirim Pesanan Sekarang</span>
+                            </button>
+                            <p class="text-[11px] text-center text-slate-400 mt-3">Pastikan data dan nomor punggung sudah benar sebelum mengirim.</p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <div id="tab-admin" class="hidden space-y-6 animate-fadeIn">
+            <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white">Panel Admin & Rekap Pesanan</h2>
+                    <p class="text-sm text-slate-400">Kelola koneksi database Google Apps Script, sinkronisasi data pesanan, dan verifikasi.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="syncWithGoogleSheets()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium transition-colors shadow-lg shadow-blue-600/20">
+                        <i class="fa-solid fa-rotate mr-1.5"></i> Sinkronisasi Data
+                    </button>
+                    <button onclick="openAppsScriptModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-sm font-medium transition-colors">
+                        <i class="fa-solid fa-code mr-1.5"></i> Panduan Code.gs
+                    </button>
+                    <button onclick="logoutAdmin()" class="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 rounded-xl text-sm font-medium transition-colors">
+                        <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Keluar
+                    </button>
+                </div>
+            </div>
+
+            <!-- GAS URL Configuration Card -->
+            <div class="bg-cardBg border border-cardBorder rounded-2xl p-6 shadow-xl space-y-4">
+                <h3 class="text-base font-semibold text-white flex items-center">
+                    <i class="fa-solid fa-link text-blue-400 mr-2"></i> Konfigurasi URL Google Apps Script Web App
+                </h3>
+                <p class="text-xs text-slate-400">
+                    Masukkan Web App URL dari deployment Google Apps Script Anda agar pesanan langsung tersimpan ke Google Sheets & Google Drive.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" 
+                        class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                    <button onclick="saveGasUrl()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold transition-colors shadow-md">
+                        Simpan URL
+                    </button>
+                </div>
+                <div class="flex items-center space-x-2 text-xs">
+                    <span id="connection-status-badge" class="px-2.5 py-1 rounded-full font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        Status: Menggunakan Local Storage / Belum Terhubung GAS
+                    </span>
+                </div>
+            </div>
+
+            <!-- Table & Recap -->
+            <div class="bg-cardBg border border-cardBorder rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-4 border-b border-cardBorder flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <h3 class="font-bold text-white text-base">Rekapitulasi Seluruh Pesanan</h3>
+                    <div class="flex items-center space-x-3 w-full sm:w-auto">
+                        <input type="text" id="search-recap" oninput="renderAdminTable()" placeholder="Cari nama / angkatan..." class="w-full sm:w-64 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-900/80 text-slate-400 border-b border-cardBorder uppercase text-[11px] tracking-wider">
+                                <th class="p-4">Waktu / ID</th>
+                                <th class="p-4">Pemesan</th>
+                                <th class="p-4">Detail Paket</th>
+                                <th class="p-4 text-center">No Punggung</th>
+                                <th class="p-4">Total</th>
+                                <th class="p-4 text-center">Bukti Transfer</th>
+                                <th class="p-4 text-center">Status & Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body" class="divide-y divide-slate-800/60 text-slate-300">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="admin-empty" class="hidden p-12 text-center text-slate-500">
+                    <i class="fa-solid fa-shield-cat text-4xl mb-3 text-slate-600"></i>
+                    <p class="text-base font-medium">Belum ada pesanan tercatat.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- LOGIN MODAL FOR ADMIN WITH pahmiganteng -->
+    <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl max-w-sm w-full p-6 sm:p-8 shadow-2xl relative animate-scaleUp">
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center mx-auto mb-3 text-xl shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-1">Akses Panel Admin</h3>
+                <p class="text-xs text-slate-400">Masukkan password admin untuk melanjutkan.</p>
+            </div>
+
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1.5">Password Akses</label>
+                    <input type="password" id="admin-password-input" required placeholder="Masukkan password..." 
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors">
+                </div>
+                <div class="flex space-x-3 pt-2">
+                    <button type="button" onclick="closeLoginModal()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-xl transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl shadow-lg shadow-blue-600/30 transition-colors">
+                        Masuk
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tiket Pesanan Sukses -->
+    <div id="ticket-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative animate-scaleUp">
+            <div class="text-center">
+                <div class="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-1">Pesanan Berhasil Dikirim!</h3>
+                <p class="text-xs text-slate-400 mb-6">Data telah dicatat ke sistem dan database.</p>
+
+                <div id="ticket-content" class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-left space-y-2 text-xs mb-6">
+                    <!-- Dynamic ticket info -->
+                </div>
+
+                <div class="flex space-x-3">
+                    <button onclick="closeTicketModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl transition-colors">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Lihat Bukti Transfer -->
+    <div id="proof-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-cardBorder">
+                <h3 class="font-bold text-white text-base">Bukti Transfer Pembayaran</h3>
+                <button onclick="closeProofModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="flex justify-center bg-slate-900 p-4 rounded-xl border border-slate-800 max-h-[60vh] overflow-auto">
+                <img id="modal-proof-img" src="" alt="Bukti Transfer" class="max-h-full rounded-lg object-contain">
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="closeProofModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-medium">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Panduan Code.gs -->
+    <div id="gas-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-cardBg border border-cardBorder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-cardBorder">
+                <h3 class="font-bold text-white text-base flex items-center"><i class="fa-solid fa-code text-blue-400 mr-2"></i> Panduan Google Apps Script (Code.gs)</h3>
+                <button onclick="closeAppsScriptModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="overflow-y-auto space-y-4 text-xs text-slate-300 flex-1 pr-2">
+                <p>Salin kode di bawah ini ke editor Google Apps Script pada Google Sheets Anda. Pastikan folder ID Google Drive sudah diatur ke <code class="text-blue-400">1ABRJvupPh4PXy2GdQ47_yr8A9LCS8sGN</code>.</p>
+                <div class="relative">
+                    <pre id="gas-code-snippet" class="bg-slate-900 p-4 rounded-xl border border-slate-800 font-mono text-[11px] text-blue-300 overflow-x-auto select-all">
+// Google Apps Script (Code.gs)
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    
+    var imageUrl = "";
+    if (data.buktiTransfer && data.buktiTransfer.startsWith("data:image")) {
+      var folderId = "1ABRJvupPh4PXy2GdQ47_yr8A9LCS8sGN";
+      var folder = DriveApp.getFolderById(folderId);
+      var blob = Utilities.newBlob(Utilities.base64Decode(data.buktiTransfer.split(",")[1]), data.buktiTransfer.split(";")[0].split(":")[1], "Bukti_" + data.id + ".png");
+      var file = folder.createFile(blob);
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      imageUrl = file.getUrl();
+    } else {
+      imageUrl = data.buktiTransfer || "";
+    }
+    
+    sheet.appendRow([
+      data.timestamp,
+      data.id,
+      data.nama,
+      data.angkatan,
+      data.lengan,
+      data.celana,
+      data.ukuran,
+      data.namaPunggung,
+      data.noPunggung !== null ? data.noPunggung : "Tanpa No",
+      data.total,
+      imageUrl,
+      data.status
+    ]);
+    
+    return ContentService.createTextOutput(JSON.stringify({"status": "success", "id": data.id}))
+                        .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
+                        .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var rows = sheet.getDataRange().getValues();
+    var data = [];
+    
+    for (var i = 1; i &lt; rows.length; i++) {
+      var row = rows[i];
+      if(!row[1]) continue;
+      data.push({
+        timestamp: row[0],
+        id: row[1],
+        nama: row[2],
+        angkatan: row[3],
+        lengan: row[4],
+        celana: row[5],
+        ukuran: row[6],
+        namaPunggung: row[7],
+        noPunggung: row[8] === "Tanpa No" ? null : Number(row[8]),
+        total: Number(row[9]),
+        buktiTransfer: row[10],
+        status: row[11] || "Pending"
+      });
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({"status": "success", "orders": data}))
+                        .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
+                        .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+                    </pre>
+                </div>
+                <ol class="list-decimal list-inside space-y-1 text-slate-400">
+                    <li>Buka Google Sheets &gt; Extensions &gt; Apps Script.</li>
+                    <li>Tempel kode di atas, lalu klik <strong>Deploy &gt; New deployment</strong>.</li>
+                    <li>Pilih jenis <strong>Web App</strong>, atur akses ke <strong>Anyone</strong>.</li>
+                    <li>Salin URL Web App dan tempel ke pengaturan Panel Admin.</li>
+                </ol>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="closeAppsScriptModal()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-medium">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-sm">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-msg">Notifikasi berhasil</span>
+    </div>
+
+    <script>
+        let orders = JSON.parse(localStorage.getItem('mahad_po_orders')) || [
+            {
+                id: 'PO-2026-001',
+                timestamp: '05 Okt 2026, 10:30',
+                nama: 'Muhammad Al-Fatih',
+                angkatan: 'Angkatan 24',
+                lengan: 'Pendek',
+                celana: 'Set Lengkap',
+                ukuran: 'L',
+                namaPunggung: 'AL-FATIH',
+                noPunggung: 10,
+                total: 150000,
+                buktiTransfer: 'https://placehold.co/400x600/1e293b/94a3b8?text=Bukti+Transfer+Mock+1',
+                status: 'Verified'
+            }
+        ];
+
+        let selectedNumber = null;
+        let uploadedImageBase64 = 'https://placehold.co/400x600/1e293b/94a3b8?text=Bukti+Transfer+Default';
+        let isAdminLoggedIn = sessionStorage.getItem('mahad_admin_auth') === 'true';
+        let googleAppsScriptUrl = localStorage.getItem('mahad_gas_url') || '';
+
+        window.onload = function() {
+            const urlInput = document.getElementById('gas-url-input');
+            if(urlInput) urlInput.value = googleAppsScriptUrl;
+            updateConnectionStatusBadge();
+            renderNumberGrid();
+            calculatePrice();
+            if (googleAppsScriptUrl) {
+                syncWithGoogleSheets(true);
+            }
+        };
+
+        function updateConnectionStatusBadge() {
+            const badge = document.getElementById('connection-status-badge');
+            if(!badge) return;
+            if (googleAppsScriptUrl) {
+                badge.className = "px-2.5 py-1 rounded-full font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                badge.innerText = "Status: Terhubung ke Google Sheets Apps Script";
+            } else {
+                badge.className = "px-2.5 py-1 rounded-full font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                badge.innerText = "Status: Menggunakan Local Storage (Belum ada GAS URL)";
+            }
+        }
+
+        function saveGasUrl() {
+            const val = document.getElementById('gas-url-input').value.trim();
+            googleAppsScriptUrl = val;
+            localStorage.setItem('mahad_gas_url', val);
+            updateConnectionStatusBadge();
+            showToast('URL Google Apps Script berhasil disimpan!', 'success');
+            syncWithGoogleSheets();
+        }
+
+        // Authentication Handler for Admin using pahmiganteng
+        function requestAdminAccess(tabId) {
+            if (isAdminLoggedIn) {
+                switchTab('admin');
+            } else {
+                document.getElementById('admin-password-input').value = '';
+                document.getElementById('login-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-password-input').value;
+            if (pass === 'pahmiganteng') {
+                isAdminLoggedIn = true;
+                sessionStorage.setItem('mahad_admin_auth', 'true');
+                closeLoginModal();
+                showToast('Login berhasil! Membuka Panel Admin...', 'success');
+                switchTab('admin');
+            } else {
+                showToast('Password salah! Coba lagi.', 'error');
+                document.getElementById('admin-password-input').value = '';
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            sessionStorage.removeItem('mahad_admin_auth');
+            switchTab('form');
+            showToast('Anda telah keluar dari sesi admin.', 'success');
+        }
+
+        // Tab Switcher
+        function switchTab(tabId) {
+            if (tabId === 'admin' && !isAdminLoggedIn) {
+                requestAdminAccess('admin');
+                return;
+            }
+
+            ['form', 'admin'].forEach(id => {
+                const tabEl = document.getElementById(`tab-${id}`);
+                if(tabEl) tabEl.classList.add('hidden');
+                
+                const navBtn = document.getElementById(`nav-${id}`);
+                if(navBtn) {
+                    navBtn.className = "px-4 py-2 rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800";
+                }
+            });
+
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            if(targetTab) targetTab.classList.remove('hidden');
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if(activeNav) {
+                activeNav.className = "px-4 py-2 rounded-lg transition-all duration-200 bg-blue-600 text-white shadow-md";
+            }
+
+            if (tabId === 'admin') renderAdminTable();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Exact Price calculation logic:
+        // Set Lengkap Lengan Pendek = 150.000
+        // Set Lengkap Lengan Panjang = 160.000
+        // Lengan Pendek Tanpa Celana = 100.000
+        // Lengan Panjang Tanpa Celana = 110.000
+        function calculatePrice() {
+            const lenganEl = document.querySelector('input[name="lengan"]:checked');
+            const celanaEl = document.querySelector('input[name="celana"]:checked');
+            const ukuranEl = document.getElementById('ukuran');
+            if(!lenganEl || !celanaEl || !ukuranEl) return;
+
+            const lengan = lenganEl.value; // 'Pendek' | 'Panjang'
+            const celana = celanaEl.value; // 'Set Lengkap' | 'Tanpa Celana'
+            const ukuran = ukuranEl.value;
+
+            let basePrice = 100000;
+            let packageName = "Tanpa Celana (Lengan Pendek)";
+
+            if (celana === 'Set Lengkap' && lengan === 'Pendek') {
+                basePrice = 150000;
+                packageName = "Set Lengkap (Lengan Pendek)";
+            } else if (celana === 'Set Lengkap' && lengan === 'Panjang') {
+                basePrice = 160000;
+                packageName = "Set Lengkap (Lengan Panjang)";
+            } else if (celana === 'Tanpa Celana' && lengan === 'Pendek') {
+                basePrice = 100000;
+                packageName = "Tanpa Celana (Lengan Pendek)";
+            } else if (celana === 'Tanpa Celana' && lengan === 'Panjang') {
+                basePrice = 110000;
+                packageName = "Tanpa Celana (Lengan Panjang)";
+            }
+
+            let surcharge = 0;
+            if (['3XL', '4XL', '5XL'].includes(ukuran)) {
+                surcharge = 10000;
+            }
+
+            const total = basePrice + surcharge;
+
+            document.getElementById('summary-package').innerText = packageName;
+            document.getElementById('summary-base-price').innerText = formatRupiah(basePrice);
+            document.getElementById('summary-surcharge').innerText = formatRupiah(surcharge);
+            document.getElementById('summary-total').innerText = formatRupiah(total);
+        }
+
+        // Render Number Grid 1-200
+        function renderNumberGrid() {
+            const gridContainer = document.getElementById('number-grid');
+            if(!gridContainer) return;
+            gridContainer.innerHTML = '';
+
+            const takenNumbers = orders.map(o => o.noPunggung).filter(n => n !== null && n !== undefined);
+
+            for (let i = 1; i <= 200; i++) {
+                const isTaken = takenNumbers.includes(i);
+                const isSelected = selectedNumber === i;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.innerText = i;
+                btn.className = `h-9 rounded-lg text-xs font-bold transition-all flex items-center justify-center border `;
+
+                if (isTaken) {
+                    btn.className += `bg-slate-800 text-slate-500 border-slate-700/50 cursor-not-allowed`;
+                    btn.disabled = true;
+                    btn.title = `Nomor ${i} sudah terpakai`;
+                } else if (isSelected) {
+                    btn.className += `bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-500/30 scale-105 ring-2 ring-emerald-400`;
+                } else {
+                    btn.className += `bg-slate-800 text-slate-200 border-slate-700 hover:bg-blue-600/30 hover:border-blue-500 hover:text-blue-400`;
+                    btn.onclick = () => selectNumber(i);
+                }
+
+                gridContainer.appendChild(btn);
+            }
+        }
+
+        function selectNumber(num) {
+            const tanpaNomorCheckbox = document.getElementById('tanpa_nomor');
+            if(tanpaNomorCheckbox && tanpaNomorCheckbox.checked) return;
+
+            selectedNumber = num;
+            const disp = document.getElementById('selected-number-display');
+            if(disp) disp.innerText = `Nomor #${num}`;
+            renderNumberGrid();
+        }
+
+        function toggleTanpaNomor(checkbox) {
+            if(checkbox.checked) {
+                selectedNumber = null;
+                const disp = document.getElementById('selected-number-display');
+                if(disp) disp.innerText = 'Tanpa Nomor Punggung';
+                renderNumberGrid();
+            } else {
+                const disp = document.getElementById('selected-number-display');
+                if(disp) disp.innerText = 'Belum dipilih';
+            }
+        }
+
+        // File Handler
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageBase64 = e.target.result;
+                    document.getElementById('preview-img').src = uploadedImageBase64;
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    document.getElementById('upload-preview').classList.remove('hidden');
+                    showToast('Bukti transfer berhasil dimuat', 'success');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Form Submit with GAS Integration
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const tanpaNomorChecked = document.getElementById('tanpa_nomor').checked;
+            if (!tanpaNomorChecked && selectedNumber === null) {
+                showToast('Silakan pilih nomor punggung atau centang "Tanpa Nomor Punggung"', 'error');
+                return;
+            }
+
+            const nama = document.getElementById('nama').value.trim();
+            const angkatan = document.getElementById('angkatan').value;
+            const lengan = document.querySelector('input[name="lengan"]:checked').value;
+            const celana = document.querySelector('input[name="celana"]:checked').value;
+            const ukuran = document.getElementById('ukuran').value;
+            const namaPunggung = document.getElementById('nama_punggung').value.trim().toUpperCase() || '-';
+
+            let basePrice = 100000;
+            if (celana === 'Set Lengkap' && lengan === 'Pendek') basePrice = 150000;
+            else if (celana === 'Set Lengkap' && lengan === 'Panjang') basePrice = 160000;
+            else if (celana === 'Tanpa Celana' && lengan === 'Pendek') basePrice = 100000;
+            else if (celana === 'Tanpa Celana' && lengan === 'Panjang') basePrice = 110000;
+
+            let surcharge = ['3XL', '4XL', '5XL'].includes(ukuran) ? 10000 : 0;
+            let total = basePrice + surcharge;
+
+            const newOrder = {
+                id: 'PO-2026-' + String(orders.length + 1).padStart(3, '0'),
+                timestamp: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                nama,
+                angkatan,
+                lengan,
+                celana,
+                ukuran,
+                namaPunggung,
+                noPunggung: tanpaNomorChecked ? null : selectedNumber,
+                total,
+                buktiTransfer: uploadedImageBase64,
+                status: 'Pending'
+            };
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim ke Google Sheets...';
+
+            if (googleAppsScriptUrl) {
+                try {
+                    await fetch(googleAppsScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newOrder)
+                    });
+                    showToast('Berhasil dikirim ke Google Sheets!', 'success');
+                } catch (err) {
+                    console.error("GAS Error:", err);
+                    showToast('Gagal mengirim ke GAS, disimpan lokal.', 'error');
+                }
+            }
+
+            orders.unshift(newOrder);
+            localStorage.setItem('mahad_po_orders', JSON.stringify(orders));
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i> Kirim Pesanan Sekarang';
+
+            showTicketModal(newOrder);
+
+            document.getElementById('order-form').reset();
+            selectedNumber = null;
+            document.getElementById('selected-number-display').innerText = 'Belum dipilih';
+            document.getElementById('upload-placeholder').classList.remove('hidden');
+            document.getElementById('upload-preview').classList.add('hidden');
+            uploadedImageBase64 = 'https://placehold.co/400x600/1e293b/94a3b8?text=Bukti+Transfer+Default';
+            renderNumberGrid();
+            calculatePrice();
+        }
+
+        async function syncWithGoogleSheets(silent = false) {
+            if (!googleAppsScriptUrl) {
+                if (!silent) showToast('Masukkan URL Google Apps Script terlebih dahulu.', 'error');
+                return;
+            }
+
+            if (!silent) showToast('Menyelaraskan data dengan Google Sheets...', 'success');
+            try {
+                const response = await fetch(googleAppsScriptUrl);
+                const result = await response.json();
+                if (result.status === 'success' && Array.isArray(result.orders)) {
+                    orders = result.orders;
+                    localStorage.setItem('mahad_po_orders', JSON.stringify(orders));
+                    renderNumberGrid();
+                    renderAdminTable();
+                    if (!silent) showToast('Sinkronisasi Google Sheets berhasil!', 'success');
+                }
+            } catch (err) {
+                console.error("Sync error:", err);
+                if (!silent) showToast('Gagal menyelaraskan data (Cek izin Web App / CORS).', 'error');
+            }
+        }
+
+        function showTicketModal(order) {
+            const content = document.getElementById('ticket-content');
+            content.innerHTML = `
+                <div class="flex justify-between border-b border-slate-800 pb-2">
+                    <span class="text-slate-400">ID Pesanan</span>
+                    <span class="font-bold text-blue-400">${order.id}</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-2">
+                    <span class="text-slate-400">Nama Pemesan</span>
+                    <span class="font-medium text-white">${order.nama}</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-2">
+                    <span class="text-slate-400">Angkatan / Status</span>
+                    <span class="font-medium text-white">${order.angkatan}</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-2">
+                    <span class="text-slate-400">Spesifikasi</span>
+                    <span class="font-medium text-white">Lengan ${order.lengan} (${order.celana})</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-2">
+                    <span class="text-slate-400">Ukuran & Punggung</span>
+                    <span class="font-medium text-white">Size ${order.ukuran} | No. ${order.noPunggung !== null ? order.noPunggung : 'Tanpa No'}</span>
+                </div>
+                <div class="flex justify-between pt-1">
+                    <span class="text-slate-400 font-bold">Total Pembayaran</span>
+                    <span class="font-extrabold text-blue-400">${formatRupiah(order.total)}</span>
+                </div>
+            `;
+            document.getElementById('ticket-modal').classList.remove('hidden');
+        }
+
+        function closeTicketModal() {
+            document.getElementById('ticket-modal').classList.add('hidden');
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-table-body');
+            const emptyEl = document.getElementById('admin-empty');
+            const searchInput = document.getElementById('search-recap');
+            if(!tbody) return;
+
+            const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+            tbody.innerHTML = '';
+
+            const filteredOrders = orders.filter(o => 
+                (o.nama && o.nama.toLowerCase().includes(searchVal)) || 
+                (o.angkatan && o.angkatan.toLowerCase().includes(searchVal)) || 
+                (o.id && o.id.toLowerCase().includes(searchVal))
+            );
+
+            if (filteredOrders.length === 0) {
+                emptyEl.classList.remove('hidden');
+                return;
+            } else {
+                emptyEl.classList.add('hidden');
+            }
+
+            filteredOrders.forEach((order, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/40 transition-colors";
+
+                const badgeColor = order.status === 'Verified' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+
+                tr.innerHTML = `
+                    <td class="p-4 text-xs text-slate-400">
+                        <p class="font-bold text-blue-400">${order.id || '-'}</p>
+                        <p>${order.timestamp || '-'}</p>
+                    </td>
+                    <td class="p-4">
+                        <p class="font-bold text-white">${order.nama || '-'}</p>
+                        <p class="text-xs text-slate-400">${order.angkatan || '-'}</p>
+                    </td>
+                    <td class="p-4 text-xs">
+                        <p>Lengan ${order.lengan || '-'} (${order.celana || '-'})</p>
+                        <p class="text-slate-400">Size: ${order.ukuran || '-'} | Nama: ${order.namaPunggung || '-'}</p>
+                    </td>
+                    <td class="p-4 text-center font-mono font-bold text-blue-400">${order.noPunggung !== null && order.noPunggung !== undefined ? '#' + order.noPunggung : 'Tanpa No'}</td>
+                    <td class="p-4 font-semibold text-white">${formatRupiah(order.total || 0)}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="openProofModal('${order.buktiTransfer || ''}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-lg text-xs font-medium transition-colors border border-slate-700">
+                            <i class="fa-solid fa-eye mr-1"></i> Lihat Bukti
+                        </button>
+                    </td>
+                    <td class="p-4 text-center space-y-2">
+                        <div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeColor}">
+                                ${order.status || 'Pending'}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-2 pt-1">
+                            ${order.status === 'Pending' ? `
+                                <button onclick="updateOrderStatus(${index}, 'Verified')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium transition-colors">
+                                    Verifikasi
+                                </button>
+                            ` : `
+                                <button onclick="updateOrderStatus(${index}, 'Pending')" class="px-3 py-1 bg-amber-600/20 text-amber-400 hover:bg-amber-600/30 border border-amber-500/30 rounded-lg text-xs font-medium transition-colors">
+                                    Batalkan
+                                </button>
+                            `}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateOrderStatus(index, newStatus) {
+            orders[index].status = newStatus;
+            localStorage.setItem('mahad_po_orders', JSON.stringify(orders));
+            renderAdminTable();
+            showToast(`Status pesanan diperbarui menjadi ${newStatus}`, 'success');
+        }
+
+        function openProofModal(imgSrc) {
+            document.getElementById('modal-proof-img').src = imgSrc || 'https://placehold.co/400x600?text=No+Image';
+            document.getElementById('proof-modal').classList.remove('hidden');
+        }
+
+        function closeProofModal() {
+            document.getElementById('proof-modal').classList.add('hidden');
+        }
+
+        function openAppsScriptModal() {
+            document.getElementById('gas-modal').classList.remove('hidden');
+        }
+
+        function closeAppsScriptModal() {
+            document.getElementById('gas-modal').classList.add('hidden');
+        }
+
+        function copyToClipboard(text, btnElement) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                const originalHTML = btnElement.innerHTML;
+                btnElement.innerHTML = '<i class="fa-solid fa-check mr-1 text-emerald-400"></i> Tersalin';
+                btnElement.classList.add('text-emerald-400');
+                setTimeout(() => {
+                    btnElement.innerHTML = originalHTML;
+                    btnElement.classList.remove('text-emerald-400');
+                }, 2000);
+                showToast('Nomor rekening berhasil disalin', 'success');
+            } catch (err) {
+                showToast('Gagal menyalin teks', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+            if(!toast) return;
+
+            toastMsg.innerText = msg;
+            if (type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-lg";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
